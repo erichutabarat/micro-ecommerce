@@ -13,21 +13,21 @@ type BrokerRequest struct {
 func (app *Config) handleBroker(c *gin.Context) {
     var req BrokerRequest
     if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(400, gin.H{"error": err.Error()})
+        app.errorResponse(c, 400, "Invalid request body: "+err.Error())
         return
     }
 
     switch req.Action {
     case "auth":
-        log.Println("Calling auth service...")
-        c.JSON(200, gin.H{"status": "success", "service": "auth", "received": req.Payload})
+        result := gin.H{"token": "mock-jwt-token-123"}
+        app.successResponse(c, 200, "Auth successful", result)
 
     case "product":
-        log.Println("Calling product service...")
-        c.JSON(200, gin.H{"status": "success", "service": "product", "received": req.Payload})
+        result := gin.H{"id": 1, "name": "Laptop", "price": 999.99}
+        app.successResponse(c, 200, "Product fetched successfully", result)
 
     default:
         log.Println("Targeted service unknown")
-        c.JSON(400, gin.H{"error": "Targeted service unknown"})
+        app.errorResponse(c, 404, "Targeted service unknown: "+req.Action)
     }
 }
