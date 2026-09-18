@@ -47,6 +47,11 @@
   border-bottom-color: var(--color-marigold);
 }
 
+.header__link--active {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-teal);
+}
+
 .header__actions {
   display: flex;
   align-items: center;

@@ -1,4 +1,3 @@
-import Header from '../components/Header.jsx';
 import SearchBar from '../components/SearchBar.jsx';
 import PromoBanner from '../components/PromoBanner.jsx';
 import CategoryList from '../components/CategoryList.jsx';
@@ -12,7 +11,6 @@ export default function Home() {
 
   return (
     <>
-      <Header />
       <SearchBar onSearch={handleSearch} />
       <PromoBanner />
       <CategoryList />

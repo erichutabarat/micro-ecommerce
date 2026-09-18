@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import './Header.css';
 
-const NAV_LINKS = ['Home', 'Categories', 'Deals', 'About'];
+const NAV_LINKS = [
+  { label: 'Home', to: '/' },
+  { label: 'Categories', to: '/categories' },
+  { label: 'Deals', to: '/deals' },
+  { label: 'About', to: '/about' },
+];
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,15 +15,23 @@ export default function Header() {
   return (
     <header className="header">
       <div className="container header__row">
-        <a className="header__logo" href="/">
+        <Link className="header__logo" to="/">
           Micro<em>market</em>
-        </a>
+        </Link>
 
         <nav className={`header__nav ${menuOpen ? 'header__nav--open' : ''}`}>
           {NAV_LINKS.map((link) => (
-            <a key={link} href={`/${link.toLowerCase()}`} className="header__link">
-              {link}
-            </a>
+            <NavLink
+              key={link.label}
+              to={link.to}
+              end={link.to === '/'}
+              className={({ isActive }) =>
+                `header__link${isActive ? ' header__link--active' : ''}`
+              }
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </NavLink>
           ))}
         </nav>
 
