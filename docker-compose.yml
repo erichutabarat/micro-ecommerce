@@ -1,0 +1,21 @@
+services:
+  broker-service:
+    build:
+      context: ./broker
+      dockerfile: broker.dockerfile
+    container_name: broker-service
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend-service:
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    container_name: frontend-service
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
