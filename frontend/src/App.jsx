@@ -5,6 +5,7 @@ import Categories from './pages/Categories.jsx';
 import Deals from './pages/Deals.jsx';
 import About from './pages/About.jsx';
 import NotFound from './pages/NotFound.jsx';
+import LoginPage from './pages/Login.jsx';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="deals" element={<Deals />} />
         <Route path="about" element={<About />} />
+        <Route path="login" element={<LoginPage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
