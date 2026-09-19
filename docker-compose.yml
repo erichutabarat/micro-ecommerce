@@ -7,6 +7,13 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+  
+  auth-service:
+    build:
+      context: ./auth
+      dockerfile: auth.dockerfile
+    container_name: auth-service
+    restart: unless-stopped
 
   frontend-service:
     build:
