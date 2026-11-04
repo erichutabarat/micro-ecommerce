@@ -1,9 +1,7 @@
 package model
 
 type ServiceResponse struct {
-	responseSuccess bool
-	responseMessage string
-	responseData    interface{}
-
-	ServiceRequest *ServiceRequest
+	ResponseSuccess bool        `json:"response_success"`
+	ResponseMessage string      `json:"response_message"`
+	ResponseData    interface{} `json:"response_data"`
 }
