@@ -5,9 +5,12 @@ import (
 	"auth-service/internal/model"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
+	"auth-service/internal/token"
 	"log"
 	"net"
 	"net/rpc"
+	"os"
+	"time"
 )
 
 func main() {
@@ -21,8 +24,15 @@ func main() {
 	}
 	log.Println("Database connection established and model auto-migrated")
 
+	secret := os.Getenv("JWT_SECRET")
+	if len(secret) < 5 {
+		log.Fatal("JWT_SECRET must be set and at least 5 characters")
+	}
+
+	tokenManager := token.NewManager(secret, 24*time.Hour)
+
 	userRepo := repository.NewUserRepository(db)
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, tokenManager)
 
 	server := rpc.NewServer()
 	if err := server.RegisterName("AuthService", authService); err != nil {
