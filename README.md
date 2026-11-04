@@ -157,6 +157,116 @@ err = client.Call("AuthService.Register", &service.RegisterArgs{
 
 The method name format is `"<RegisteredName>.<Method>"`. Both services must share the same args/reply struct definitions (for example, in a shared module), since gob encodes by field name and type.
 
+## Testing the API
+
+All requests go through the gateway's single dispatch endpoint:
+
+```
+POST http://localhost:8080/api/dispatch
+```
+
+Request body:
+
+| Field            | Description                                      |
+|------------------|--------------------------------------------------|
+| `service_name`   | Target service (`auth`)                          |
+| `service_method` | Method to call (`register`, `login`)             |
+| `service_data`   | Payload for the method, as a JSON object         |
+
+Make sure the stack is running first:
+
+```bash
+docker compose up -d
+```
+
+### Register
+
+```bash
+curl -X POST http://localhost:8080/api/dispatch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service_name": "auth",
+    "service_method": "register",
+    "service_data": {
+      "email": "eric@example.com",
+      "password": "secret",
+      "name": "Eric"
+    }
+  }'
+```
+
+Expected response (HTTP 200):
+
+```json
+{
+  "response_success": true,
+  "response_message": "User registered successfully",
+  "response_data": {
+    "success": true,
+    "message": "User registered successfully",
+    "user": { "id": 1, "email": "eric@example.com", "name": "Eric" }
+  }
+}
+```
+
+### Login
+
+Register the user first, since login needs an existing account.
+
+```bash
+curl -X POST http://localhost:8080/api/dispatch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service_name": "auth",
+    "service_method": "login",
+    "service_data": {
+      "email": "eric@example.com",
+      "password": "secret"
+    }
+  }'
+```
+
+Expected response (HTTP 200):
+
+```json
+{
+  "response_success": true,
+  "response_message": "Login successful",
+  "response_data": {
+    "success": true,
+    "message": "Login successful",
+    "user": { "id": 1, "email": "eric@example.com", "name": "Eric" }
+  }
+}
+```
+
+Wrong email or password (HTTP 401):
+
+```json
+{
+  "response_success": false,
+  "response_message": "invalid email or password",
+  "response_data": { "success": false, "message": "invalid email or password", "user": null }
+}
+```
+
+### Error responses
+
+| Status | Message                      | Cause                                                        |
+|--------|------------------------------|--------------------------------------------------------------|
+| 400    | `Invalid request payload`    | Malformed JSON                                               |
+| 400    | `Unknown service or method`  | Typo in `service_name` or `service_method` (use lowercase)   |
+| 400    | `Invalid service_data`       | `service_data` doesn't match the method's expected fields    |
+| 401    | `invalid email or password`  | Login failed                                                 |
+| 502    | `Service unavailable`        | Gateway can't reach `auth-service`                           |
+| 504    | `Service timed out`          | `auth-service` didn't reply within 5 seconds                 |
+
+To see the HTTP status code, add `-i` to the curl command. To follow a request through both services:
+
+```bash
+docker compose logs -f api-gateway auth-service
+```
+
 ## Troubleshooting
 
 **`Cant read dsn` / `database configuration is not set properly`**
