@@ -24,9 +24,11 @@ type LoginArgs struct {
 }
 
 type LoginReply struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	User    *User  `json:"user"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message"`
+	User      *User  `json:"user"`
+	Token     string
+	ExpiresAt int64
 }
 
 // Lets the handler read any reply generically.

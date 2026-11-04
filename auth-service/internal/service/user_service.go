@@ -3,18 +3,21 @@ package service
 import (
 	"auth-service/internal/model"
 	"auth-service/internal/repository"
+	"auth-service/internal/token"
 	"errors"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type AuthService struct {
-	repo repository.UserRepository
+	repo   repository.UserRepository
+	tokens *token.Manager
 }
 
-func NewAuthService(repo repository.UserRepository) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(repo repository.UserRepository, tokens *token.Manager) *AuthService {
+	return &AuthService{repo: repo, tokens: tokens}
 }
 
 // ---------- Register ----------
@@ -67,9 +70,11 @@ type LoginArgs struct {
 }
 
 type LoginReply struct {
-	Success bool
-	Message string
-	User    *model.User
+	Success   bool
+	Message   string
+	User      *model.User
+	Token     string
+	ExpiresAt int64
 }
 
 func (s *AuthService) Login(args *LoginArgs, reply *LoginReply) error {
@@ -90,9 +95,21 @@ func (s *AuthService) Login(args *LoginArgs, reply *LoginReply) error {
 		return nil
 	}
 
+	signed, expiresAt, err := s.tokens.Generate(user.ID, user.Email)
+	if err != nil {
+		log.Printf("failed to generate token: %v", err)
+		reply.Success = false
+		reply.Message = "internal error"
+		return nil
+	}
+
+	// log.Printf("User %s logged in successfully, token expires at %v", user.Email, expiresAt)
+
 	user.Password = ""
 	reply.Success = true
 	reply.Message = "Login successful"
 	reply.User = user
+	reply.Token = signed
+	reply.ExpiresAt = expiresAt.Unix()
 	return nil
 }
