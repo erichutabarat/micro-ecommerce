@@ -1,21 +1,22 @@
-FROM golang:1.25-alpine AS build
+FROM golang:1.26-alpine AS build
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-
 RUN go mod download
 
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./cmd/server
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/server
+FROM alpine:3.20
 
-FROM alpine:latest
+RUN addgroup -S app && adduser -S app -G app
 
-WORKDIR /root/
-
+WORKDIR /app
 COPY --from=build /app/server .
 
-EXPOSE 8080
+USER app
+
+EXPOSE 1234
 
 CMD ["./server"]

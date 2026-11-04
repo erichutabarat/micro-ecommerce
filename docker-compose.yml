@@ -29,5 +29,23 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    expose:
+      - "1234"
+    environment:
+      - GIN_MODE=${GIN_MODE:-release}
+      - PORT=${PORT:-1234}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER:-user}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-password}
+      - DB_NAME=${MYSQL_DATABASE:-micro_ecommerce}
+    depends_on:
+      - mysql
+    restart: unless-stopped
 volumes:
   mysql_data:
