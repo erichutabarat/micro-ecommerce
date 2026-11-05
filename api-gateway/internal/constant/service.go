@@ -1,7 +1,8 @@
 package constant
 
 const (
-	ServiceAuth = "auth"
+	ServiceAuth   = "auth"
+	ServiceSeller = "seller"
 )
 
 const (

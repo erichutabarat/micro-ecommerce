@@ -37,6 +37,20 @@ func Lookup(service, method string) (Route, bool) {
 				NewReply: func() rpctypes.Result { return &rpctypes.LoginReply{} },
 			},
 		},
+		constant.ServiceSeller: {
+			constant.MethodRegister: {
+				Address:  authAddr(),
+				RPCName:  "SellerService.Register",
+				NewArgs:  func() any { return &rpctypes.SellerRegisterArgs{} },
+				NewReply: func() rpctypes.Result { return &rpctypes.SellerRegisterReply{} },
+			},
+			constant.MethodLogin: {
+				Address:  authAddr(),
+				RPCName:  "SellerService.Login",
+				NewArgs:  func() any { return &rpctypes.SellerLoginArgs{} },
+				NewReply: func() rpctypes.Result { return &rpctypes.SellerLoginReply{} },
+			},
+		},
 	}
 
 	r, ok := routes[service][method]
