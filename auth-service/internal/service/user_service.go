@@ -95,7 +95,7 @@ func (s *AuthService) Login(args *LoginArgs, reply *LoginReply) error {
 		return nil
 	}
 
-	signed, expiresAt, err := s.tokens.Generate(user.ID, user.Email)
+	signed, expiresAt, err := s.tokens.Generate(user.ID, user.Email, token.RoleCustomer)
 	if err != nil {
 		log.Printf("failed to generate token: %v", err)
 		reply.Success = false
