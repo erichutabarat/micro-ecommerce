@@ -32,11 +32,18 @@ func main() {
 	tokenManager := token.NewManager(secret, 24*time.Hour)
 
 	userRepo := repository.NewUserRepository(db)
+	sellerRepo := repository.NewSellerRepository(db)
+
 	authService := service.NewAuthService(userRepo, tokenManager)
+	sellerService := service.NewSellerService(sellerRepo, tokenManager)
 
 	server := rpc.NewServer()
 	if err := server.RegisterName("AuthService", authService); err != nil {
-		log.Fatalf("Failed to register RPC service: %v", err)
+		log.Fatalf("Failed to register rpc auth service: %v", err)
+	}
+
+	if err := server.RegisterName("SellerService", sellerService); err != nil {
+		log.Fatalf("Failed to register rpc seller service: %v", err)
 	}
 
 	listener, err := net.Listen("tcp", ":1234")
