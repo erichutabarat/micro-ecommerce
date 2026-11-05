@@ -8,8 +8,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const (
+	RoleCustomer = "customer"
+	RoleSeller   = "seller"
+)
+
 type Claims struct {
 	Email string `json:"email"`
+	Role  string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -23,14 +29,15 @@ func NewManager(secret string, ttl time.Duration) *Manager {
 }
 
 // Generate returns a signed token and its expiry time.
-func (m *Manager) Generate(userID uint, email string) (string, time.Time, error) {
+func (m *Manager) Generate(id uint, email, role string) (string, time.Time, error) {
 	now := time.Now()
 	expiresAt := now.Add(m.ttl)
 
 	claims := Claims{
 		Email: email,
+		Role:  role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   strconv.FormatUint(uint64(userID), 10),
+			Subject:   strconv.FormatUint(uint64(id), 10),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 		},
