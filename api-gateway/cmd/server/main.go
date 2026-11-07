@@ -2,18 +2,30 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
+	"api-gateway/internal/auth"
 	"api-gateway/internal/handler"
+	"api-gateway/internal/middleware"
 )
 
 func main() {
 	server := gin.Default()
 
+	secret := os.Getenv("JWT_SECRET")
+	if len(secret) < 5 {
+		log.Fatal("JWT_SECRET must be set and at least 6 characters long")
+	}
+
+	verifier := auth.NewVerifier(secret)
 	dispatchHandler := handler.NewDispatchHandler()
 
-	server.POST("/api/dispatch", dispatchHandler.HandleDispatch)
+	api := server.Group("/api", middleware.OptionalAuth(verifier))
+	{
+		api.POST("/dispatch", dispatchHandler.HandleDispatch)
+	}
 
 	log.Println("API GATEWAY RUNNING ON PORT :8080")
 

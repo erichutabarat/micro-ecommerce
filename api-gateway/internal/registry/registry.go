@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"net/http"
 	"os"
 
 	"api-gateway/internal/constant"
@@ -8,11 +9,12 @@ import (
 )
 
 type Route struct {
-	Address  string
-	RPCName  string
-	Role     string
-	NewArgs  func() any
-	NewReply func() rpctypes.Result
+	Address    string
+	RPCName    string
+	Role       string
+	FailStatus int
+	NewArgs    func() any
+	NewReply   func() rpctypes.Result
 }
 
 func authAddr() string {
@@ -39,10 +41,11 @@ func Lookup(service, method string) (Route, bool) {
 				NewReply: func() rpctypes.Result { return &rpctypes.RegisterReply{} },
 			},
 			constant.MethodLogin: {
-				Address:  authAddr(),
-				RPCName:  "AuthService.Login",
-				NewArgs:  func() any { return &rpctypes.LoginArgs{} },
-				NewReply: func() rpctypes.Result { return &rpctypes.LoginReply{} },
+				Address:    authAddr(),
+				RPCName:    "AuthService.Login",
+				FailStatus: http.StatusUnauthorized,
+				NewArgs:    func() any { return &rpctypes.LoginArgs{} },
+				NewReply:   func() rpctypes.Result { return &rpctypes.LoginReply{} },
 			},
 		},
 		constant.ServiceSeller: {
