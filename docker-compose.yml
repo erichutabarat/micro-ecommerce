@@ -48,5 +48,22 @@ services:
     depends_on:
       - mysql
     restart: unless-stopped
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    environment:
+      - PORT=1235
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER:-user}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-password}
+      - DB_NAME=${MYSQL_DATABASE:-micro_ecommerce}
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
 volumes:
   mysql_data:
